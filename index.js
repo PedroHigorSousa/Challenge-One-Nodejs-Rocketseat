@@ -66,6 +66,23 @@ server.put('/projects/update/:id', (request, response) => {
 
 })
 
+// Route (Delete project) =>
+server.delete('/projects/remove/:id', (request, response) => {
+    const { id } = request.params
+
+    const indexProject = datas.findIndex(project => {
+        return project.id == id
+    })
+
+    datas.splice(indexProject, 1)
+
+    return response.json(
+        {
+            "message": "Project removed successfull"
+        }
+    )
+})
+
 // Building the server
 server.listen('3333', () => {
     console.log('Server is running ...')
