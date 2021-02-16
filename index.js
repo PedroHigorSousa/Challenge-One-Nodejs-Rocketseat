@@ -1,11 +1,24 @@
-const { request, response } = require('express')
 const express = require('express')
 const server = express()
 
 // Settings express
 server.use(express.json())
 
+// Middlewares
+const Middlewares = require('./middlewares')
+
 const datas = require('./datas')
+
+// Middleware Global
+
+function countRequest(request, response, next) {
+    console.count("Nº de requisições");
+
+    next()
+}
+
+server.use(countRequest)
+
 
 // Route (All projects) =>
 server.get('/projects', (request, response) => {
@@ -13,19 +26,12 @@ server.get('/projects', (request, response) => {
 })
 
 // Route (Return only project) =>
-server.get('/projects/:id', (request, response) => {
-    const { id } = request.params
-
+server.get('/projects/:id', Middlewares.checkIndexInArray, (request, response) => {
     const justProject = datas.find(project => {
-        return project.id == id
+        return project.id == request.id
     })
 
-    return response.json(
-        {
-            justProject
-        }
-    )
-
+    return response.status(200).json({ justProject })
 })
 
 // Route (Create the new project) =>
@@ -42,13 +48,13 @@ server.post('/projects/new', (request, response) => {
 
     return response.json(
         {
-            "message": "Project created!"
+            message: "Project created!"
         }
     )
 })
 
 // Route (Update name project) =>
-server.put('/projects/update/:id', (request, response) => {
+server.put('/projects/update/:id', Middlewares.checkIndexInArray, (request, response) => {
     const { id } = request.params
     const { title } = request.body
 
@@ -67,7 +73,7 @@ server.put('/projects/update/:id', (request, response) => {
 })
 
 // Route (Delete project) =>
-server.delete('/projects/remove/:id', (request, response) => {
+server.delete('/projects/remove/:id', Middlewares.checkIndexInArray, (request, response) => {
     const { id } = request.params
 
     const indexProject = datas.findIndex(project => {
@@ -78,7 +84,7 @@ server.delete('/projects/remove/:id', (request, response) => {
 
     return response.json(
         {
-            "message": "Project removed successfull"
+            message: "Project removed successfull"
         }
     )
 })
