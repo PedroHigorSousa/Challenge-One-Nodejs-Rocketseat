@@ -8,11 +8,12 @@ server.use(express.json())
 const Middlewares = require('./middlewares')
 
 const datas = require('./datas')
+const { request, response } = require('express')
 
 // Middleware Global
 
 function countRequest(request, response, next) {
-    console.count("Nº de requisições");
+    console.count('Nº de requisições');
 
     next()
 }
@@ -40,15 +41,15 @@ server.post('/projects/new', (request, response) => {
 
     datas.push(
         {
-            "id": id,
-            "title": title,
-            "tasks": [task]
+            'id': id,
+            'title': title,
+            'tasks': [task]
         }
     )
 
     return response.json(
         {
-            message: "Project created!"
+            message: 'Project created!'
         }
     )
 })
@@ -84,9 +85,28 @@ server.delete('/projects/remove/:id', Middlewares.checkIndexInArray, (request, r
 
     return response.json(
         {
-            message: "Project removed successfull"
+            message: 'Project removed successfull'
         }
     )
+})
+
+// Add task for project
+server.post('/projects/add/:id/tasks', Middlewares.checkIndexInArray, (request, response) => {
+    const { id } = request.params
+    const { title } = request.body
+
+    const indexProject = datas.findIndex(project => {
+        return project.id == id
+    })
+
+    datas[indexProject].tasks.push(title)
+
+    return response.status(200).json(
+        {
+            message: 'Task added'
+        }
+    )
+
 })
 
 // Building the server
